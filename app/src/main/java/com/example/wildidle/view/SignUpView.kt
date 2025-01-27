@@ -43,41 +43,64 @@ fun SignUpComposable(navController: NavHostController) {
             mutableStateOf("")
         }
 
+        var loading by remember { mutableStateOf(false) }
+
         val authViewModel = hiltViewModel<AuthViewModel>()
         val coroutineScope = rememberCoroutineScope()
 
         fun signUp() {
-            if (userFirstPasswordText == userSecondPasswordText) {
-                coroutineScope.launch {
-                    val signUpResponse = authViewModel.signUp(
-                        SignInDTO(
-                            userNameText,
-                            userFirstPasswordText
+            if (!loading) {
+                var clientErrorMessage = ""
+                if (userFirstPasswordText != userSecondPasswordText) {
+                    clientErrorMessage = "passwords don't match"
+                } else if (userFirstPasswordText.isEmpty() || userSecondPasswordText.isEmpty()) {
+                    clientErrorMessage = "password can't be empty"
+                } else if (userNameText.isEmpty()) {
+                    clientErrorMessage = "username can't be empty"
+                } else {
+                    coroutineScope.launch {
+                        loading = true
+                        var serverErrorMessage = ""
+                        val signUpResponse = authViewModel.signUp(
+                            SignInDTO(
+                                userNameText,
+                                userFirstPasswordText
+                            )
                         )
-                    )
-                    if (signUpResponse.isSuccessful) {
-                        val loginResponse = authViewModel.login()
-                        if (loginResponse.isSuccessful) {
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(MainScreen) {
-                                    popUpTo<LoginScreen> {
-                                        inclusive = true
+                        if (signUpResponse.isSuccessful) {
+                            val loginResponse = authViewModel.login()
+                            if (loginResponse.isSuccessful) {
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(MainScreen) {
+                                        popUpTo<LoginScreen> {
+                                            inclusive = true
+                                        }
                                     }
                                 }
                             }
+                        } else if (signUpResponse.code() == 493) {
+                            serverErrorMessage = "username is already taken"
+                        } else {
+                            serverErrorMessage = "error creating user"
                         }
-                    } else if (signUpResponse.code() == 493) {
-                        Toast.makeText(
-                            navController.context, "username already exists", Toast.LENGTH_LONG
-                        ).show()
+                        if (serverErrorMessage.isNotEmpty()) {
+                            Toast.makeText(
+                                navController.context,
+                                serverErrorMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        loading = false
                     }
                 }
-            } else {
-                Toast.makeText(
-                    navController.context, "passwords don't match", Toast.LENGTH_LONG
-                ).show()
+                if (clientErrorMessage.isNotEmpty()) {
+                    Toast.makeText(navController.context, clientErrorMessage, Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
+
         }
+
 
         Column(
             modifier = Modifier
@@ -134,7 +157,8 @@ fun SignUpComposable(navController: NavHostController) {
                 Button(
                     onClick = {
                         navController.popBackStack(LoginScreen, false)
-                    }
+                    },
+                    enabled = !loading
                 ) {
                     Text("Login")
                 }

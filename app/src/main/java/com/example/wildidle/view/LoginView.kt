@@ -61,29 +61,46 @@ fun LoginComposable(navController: NavController) {
 
         fun login() {
             if (!loading) {
-                loading = true
-                coroutineScope.launch {
-                    val signInResponse = authViewModel
-                        .signIn(SignInDTO(userNameText, userPasswordText))
-                    if (signInResponse.isSuccessful) {
-                        val loginResponse = authViewModel.login()
-                        if (loginResponse.isSuccessful) {
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(MainScreen) {
-                                    popUpTo<LoginScreen> {
-                                        inclusive = true
+                var clientErrorMessage = ""
+                if (userNameText.isEmpty()) {
+                    clientErrorMessage = "username cannot be empty"
+                } else if (userPasswordText.isEmpty()) {
+                    clientErrorMessage = "password cannot be empty"
+                } else {
+                    loading = true
+                    coroutineScope.launch {
+                        var serverErrorMessage = ""
+                        val signInResponse = authViewModel
+                            .signIn(SignInDTO(userNameText, userPasswordText))
+                        if (signInResponse.isSuccessful) {
+                            val loginResponse = authViewModel.login()
+                            if (loginResponse.isSuccessful) {
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(MainScreen) {
+                                        popUpTo<LoginScreen> {
+                                            inclusive = true
+                                        }
                                     }
                                 }
                             }
+                        } else if (signInResponse.code() == 489) {
+                            serverErrorMessage = "username and password don't match"
+                        } else {
+                            serverErrorMessage = "error while logging in"
                         }
-                    } else if (signInResponse.code() == 489) {
-                        Toast.makeText(
-                            navController.context,
-                            "password or username incorrect",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        if (serverErrorMessage.isNotEmpty()) {
+                            Toast.makeText(
+                                navController.context,
+                                serverErrorMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        loading = false
                     }
-                    loading = false
+                }
+                if (clientErrorMessage.isNotEmpty()) {
+                    Toast.makeText(navController.context, clientErrorMessage, Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
