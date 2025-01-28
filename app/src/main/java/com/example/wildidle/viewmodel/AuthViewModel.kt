@@ -30,7 +30,9 @@ class AuthViewModel @Inject constructor(
     }
 
     suspend fun login(): Response<StringResponse> {
-        return idleApi.login()
+        val response = idleApi.login()
+        tokenStorage.accessToken = response.headers().values("authorization")[0]
+        return response
     }
 
     fun logout() {

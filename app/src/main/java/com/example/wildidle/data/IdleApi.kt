@@ -1,5 +1,6 @@
 package com.example.wildidle.data
 
+import com.example.wildidle.model.Item
 import com.example.wildidle.model.SignInDTO
 import com.example.wildidle.model.StringResponse
 import retrofit2.Response
@@ -16,4 +17,7 @@ interface IdleApi {
 
     @GET("/login")
     suspend fun login(): Response<StringResponse>
+
+    @GET("/items")
+    suspend fun getItems(): Response<List<Item>>
 }

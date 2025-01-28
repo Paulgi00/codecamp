@@ -19,11 +19,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.wildidle.R
 import com.example.wildidle.model.SignInDTO
 import com.example.wildidle.viewmodel.AuthViewModel
 import kotlinx.coroutines.Dispatchers
@@ -52,11 +54,14 @@ fun SignUpComposable(navController: NavHostController) {
             if (!loading) {
                 var clientErrorMessage = ""
                 if (userFirstPasswordText != userSecondPasswordText) {
-                    clientErrorMessage = "passwords don't match"
+                    clientErrorMessage =
+                        navController.context.getString(R.string.passwords_match_error)
                 } else if (userFirstPasswordText.isEmpty() || userSecondPasswordText.isEmpty()) {
-                    clientErrorMessage = "password can't be empty"
+                    clientErrorMessage =
+                        navController.context.getString(R.string.username_empty_error)
                 } else if (userNameText.isEmpty()) {
-                    clientErrorMessage = "username can't be empty"
+                    clientErrorMessage =
+                        navController.context.getString(R.string.username_empty_error)
                 } else {
                     coroutineScope.launch {
                         loading = true
@@ -79,9 +84,11 @@ fun SignUpComposable(navController: NavHostController) {
                                 }
                             }
                         } else if (signUpResponse.code() == 493) {
-                            serverErrorMessage = "username is already taken"
+                            serverErrorMessage =
+                                navController.context.getString(R.string.username_taken_error)
                         } else {
-                            serverErrorMessage = "error creating user"
+                            serverErrorMessage =
+                                navController.context.getString(R.string.create_user_error)
                         }
                         if (serverErrorMessage.isNotEmpty()) {
                             Toast.makeText(
@@ -117,7 +124,7 @@ fun SignUpComposable(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "WildIdle",
+                    text = stringResource(id = R.string.app_name),
                     fontSize = 30.sp
                 )
 
@@ -145,7 +152,7 @@ fun SignUpComposable(navController: NavHostController) {
                         signUp()
                     }
                 ) {
-                    Text("Sign Up")
+                    Text(stringResource(id = R.string.sign_up))
                 }
             }
 
@@ -160,7 +167,7 @@ fun SignUpComposable(navController: NavHostController) {
                     },
                     enabled = !loading
                 ) {
-                    Text("Login")
+                    Text(stringResource(id = R.string.login))
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }

@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WildIdleTheme {
-                val navController = rememberNavController()
+                val mainNavController = rememberNavController()
 
                 val authViewModel = hiltViewModel<AuthViewModel>()
                 val refreshToken = getSharedPreferences("prefs", MODE_PRIVATE)
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 NavHost(
-                    navController = navController,
+                    navController = mainNavController,
                     startDestination = start
 
                     ) {
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) {
-                        LoginComposable(navController)
+                        LoginComposable(mainNavController)
 
 
                     }
@@ -79,10 +79,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) {
-                        SignUpComposable(navController)
+                        SignUpComposable(mainNavController)
                     }
                     composable<MainScreen> {
-                        MainScreen(navController)
+                        MainScreen(mainNavController)
                     }
                 }
             }

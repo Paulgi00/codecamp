@@ -32,9 +32,10 @@ object HttpModule {
         .addInterceptor { chain ->
             val requestBuilder = chain.request().newBuilder()
             val token = tokenStorage.accessToken
+            println("token: ${tokenStorage.accessToken}")
             if (token.isNotEmpty()) {
                 requestBuilder
-                    .addHeader("Authorization", "Bearer $token")
+                    .addHeader("Authorization", token)
             }
             val refreshToken = application.getSharedPreferences(
                 "prefs",

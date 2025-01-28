@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.wildidle.R
 import com.example.wildidle.model.SignInDTO
 import com.example.wildidle.viewmodel.AuthViewModel
 import kotlinx.coroutines.Dispatchers
@@ -63,9 +65,10 @@ fun LoginComposable(navController: NavController) {
             if (!loading) {
                 var clientErrorMessage = ""
                 if (userNameText.isEmpty()) {
-                    clientErrorMessage = "username cannot be empty"
+                    clientErrorMessage =
+                        navController.context.getString(R.string.username_empty_error)
                 } else if (userPasswordText.isEmpty()) {
-                    clientErrorMessage = "password cannot be empty"
+                    clientErrorMessage = navController.context.getString(R.string.password_empty)
                 } else {
                     loading = true
                     coroutineScope.launch {
@@ -84,9 +87,11 @@ fun LoginComposable(navController: NavController) {
                                 }
                             }
                         } else if (signInResponse.code() == 489) {
-                            serverErrorMessage = "username and password don't match"
+                            serverErrorMessage =
+                                navController.context.getString(R.string.incorrect_password)
                         } else {
-                            serverErrorMessage = "error while logging in"
+                            serverErrorMessage =
+                                navController.context.getString(R.string.login_error)
                         }
                         if (serverErrorMessage.isNotEmpty()) {
                             Toast.makeText(
@@ -119,7 +124,7 @@ fun LoginComposable(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "WildIdle",
+                    text = stringResource(id = R.string.app_name),
                     fontSize = 30.sp
                 )
                 UserNameInput(
@@ -148,7 +153,7 @@ fun LoginComposable(navController: NavController) {
                 Button(
                     onClick = { navController.navigate(SignUpScreen) }
                 ) {
-                    Text("Sign Up")
+                    Text(stringResource(id = R.string.sign_up))
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
@@ -167,7 +172,7 @@ fun UserNameInput(userNameText: String, onUserNameChange: (String) -> Unit) {
             imeAction = ImeAction.Next
         ),
         label = {
-            Text("Username")
+            Text(stringResource(id = R.string.username))
         },
         trailingIcon = {
             Icon(
@@ -200,7 +205,7 @@ fun UserPasswordInput(
             }
         ),
         label = {
-            Text("Password")
+            Text(stringResource(id = R.string.password))
         },
         trailingIcon = {
             Icon(
