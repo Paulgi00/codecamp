@@ -1,5 +1,6 @@
 package com.example.wildidle.view
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,20 +22,94 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.wildidle.R
+import com.example.wildidle.model.SignInDTO
+import com.example.wildidle.viewmodel.AuthViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
 fun LoginComposable(navController: NavController) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    )
+    { innerPadding ->
+        var userNameText by remember {
+            mutableStateOf("")
+        }
+
+        var userPasswordText by remember {
+            mutableStateOf("")
+        }
+
+        var loading by remember { mutableStateOf(false) }
+
+        val authViewModel = hiltViewModel<AuthViewModel>()
+        val coroutineScope = rememberCoroutineScope()
+
+        fun login() {
+            if (!loading) {
+                var clientErrorMessage = ""
+                if (userNameText.isEmpty()) {
+                    clientErrorMessage =
+                        navController.context.getString(R.string.username_empty_error)
+                } else if (userPasswordText.isEmpty()) {
+                    clientErrorMessage = navController.context.getString(R.string.password_empty)
+                } else {
+                    loading = true
+                    coroutineScope.launch {
+                        var serverErrorMessage = ""
+                        val signInResponse = authViewModel
+                            .signIn(SignInDTO(userNameText, userPasswordText))
+                        if (signInResponse.isSuccessful) {
+                            val loginResponse = authViewModel.login()
+                            if (loginResponse.isSuccessful) {
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(MainScreen) {
+                                        popUpTo<LoginScreen> {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (signInResponse.code() == 489) {
+                            serverErrorMessage =
+                                navController.context.getString(R.string.incorrect_password)
+                        } else {
+                            serverErrorMessage =
+                                navController.context.getString(R.string.login_error)
+                        }
+                        if (serverErrorMessage.isNotEmpty()) {
+                            Toast.makeText(
+                                navController.context,
+                                serverErrorMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        loading = false
+                    }
+                }
+                if (clientErrorMessage.isNotEmpty()) {
+                    Toast.makeText(navController.context, clientErrorMessage, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -43,7 +118,33 @@ fun LoginComposable(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.weight(1f))
-            InnerColumn()
+            Column(
+                modifier = Modifier,
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    fontSize = 30.sp
+                )
+                UserNameInput(
+                    userNameText,
+                    onUserNameChange = { userNameText = it }
+                )
+                UserPasswordInput(
+                    userPasswordText = userPasswordText,
+                    onUserPasswordChange = { userPasswordText = it },
+                    action = { login() },
+                    imeAction = ImeAction.Send
+
+                )
+                Button(
+                    onClick = { login() },
+                    enabled = !loading
+                ) {
+                    Text("Login")
+                }
+            }
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Bottom,
@@ -52,51 +153,10 @@ fun LoginComposable(navController: NavController) {
                 Button(
                     onClick = { navController.navigate(SignUpScreen) }
                 ) {
-                    Text("Sign Up")
+                    Text(stringResource(id = R.string.sign_up))
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
-        }
-
-    }
-}
-
-
-private fun login() {
-    // Todo login
-}
-
-@Composable
-fun InnerColumn() {
-    Column(
-        modifier = Modifier,
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        var userNameText by remember {
-            mutableStateOf("")
-        }
-
-        var userPasswordText by remember {
-            mutableStateOf("")
-        }
-        Text(
-            text = "WildIdle",
-            fontSize = 30.sp
-        )
-        UserNameInput(
-            userNameText,
-            onUserNameChange = { userNameText = it }
-        )
-        UserPasswordInput(
-            userPasswordText = userPasswordText,
-            onUserPasswordChange = { userPasswordText = it }
-        )
-
-        Button(
-            onClick = { }
-        ) {
-            Text("Login")
         }
     }
 }
@@ -112,7 +172,7 @@ fun UserNameInput(userNameText: String, onUserNameChange: (String) -> Unit) {
             imeAction = ImeAction.Next
         ),
         label = {
-            Text("Username")
+            Text(stringResource(id = R.string.username))
         },
         trailingIcon = {
             Icon(
@@ -124,7 +184,11 @@ fun UserNameInput(userNameText: String, onUserNameChange: (String) -> Unit) {
 }
 
 @Composable
-fun UserPasswordInput(userPasswordText: String, onUserPasswordChange: (String) -> Unit) {
+fun UserPasswordInput(
+    userPasswordText: String, onUserPasswordChange: (String) -> Unit,
+    action: () -> Unit,
+    imeAction: ImeAction
+) {
     OutlinedTextField(
         modifier = Modifier,
         value = userPasswordText,
@@ -133,20 +197,20 @@ fun UserPasswordInput(userPasswordText: String, onUserPasswordChange: (String) -
         keyboardOptions = KeyboardOptions(
             autoCorrectEnabled = false,
             keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Send
+            imeAction = imeAction
         ),
         keyboardActions = KeyboardActions(
-            onAny = {
-                login()
+            onSend = {
+                action()
             }
         ),
         label = {
-            Text("Password")
+            Text(stringResource(id = R.string.password))
         },
         trailingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Password,
-                contentDescription = "User"
+                contentDescription = "Password"
             )
         }
     )

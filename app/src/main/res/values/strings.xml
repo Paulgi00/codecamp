@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">WildIdle</string>
+    <string name="username_empty_error">username cannot be empty</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="password_empty">password cannot be empty</string>
+    <string name="incorrect_password">username and password don\'t match</string>
+    <string name="login_error">error while logging in</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="home">Home</string>
+    <string name="shop">Shop</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="passwords_match_error">passwords don\'t match</string>
+    <string name="username_taken_error">username is already taken</string>
+    <string name="create_user_error">error creating user</string>
+    <string name="login">Login</string>
 </resources>
