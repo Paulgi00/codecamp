@@ -44,8 +44,6 @@ import java.math.BigDecimal
 @Composable
 fun GameComposable() {
     val inGameViewModel = hiltViewModel<InGameViewModel>()
-    val coroutineScope = rememberCoroutineScope()
-
 
     val gameValues by inGameViewModel.gameValues.collectAsState(
         initial = GameValues(
@@ -183,7 +181,7 @@ fun BoostComposable(boost: Boost) {
         ) {
             Image(
                 painter = painterResource(boost.imageId),
-                contentDescription = "",
+                contentDescription = "Boost Icon",
                 modifier = Modifier
                     .size(112.dp)
                     .padding(end = 10.dp),
@@ -210,7 +208,7 @@ fun BoostComposable(boost: Boost) {
 fun BtcIcon() {
     Icon(
         imageVector = Icons.Filled.CurrencyBitcoin,
-        contentDescription = "btc"
+        contentDescription = "Coins"
     )
 }
 
