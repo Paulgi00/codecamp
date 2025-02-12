@@ -34,12 +34,12 @@ class InGameViewModel @Inject constructor(
     private var upgradeMap: MutableMap<Int, Upgrade> = mutableMapOf()
 
     private val imageMap = mapOf(
-        "low passive" to R.drawable.graphics_card_image,
+        "low passive" to R.drawable.laptop_image,
         "medium passive" to R.drawable.graphics_card_image,
         "high passive" to R.drawable.quant_comp_image,
-        "low Boost" to R.drawable.graphics_card_image,
-        "medium Boost" to R.drawable.graphics_card_image,
-        "high Boost" to R.drawable.graphics_card_image
+        "low Boost" to R.drawable.referral_scam_image,
+        "medium Boost" to R.drawable.ai_trading_bot_image,
+        "high Boost" to R.drawable.rugpull_scheme_image
     )
 
     private val nameMap = mapOf(

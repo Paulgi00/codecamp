@@ -40,6 +40,10 @@ android {
     buildFeatures {
         compose = true
     }
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        localeFilters.addAll(listOf("de", "en"))
+    }
 }
 
 dependencies {

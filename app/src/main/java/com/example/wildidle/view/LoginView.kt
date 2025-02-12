@@ -48,9 +48,6 @@ fun LoginComposable(navController: NavController) {
         modifier = Modifier.fillMaxSize()
     )
     { innerPadding ->
-
-        // TODO clear database
-
         var userNameText by remember {
             mutableStateOf("")
         }
@@ -146,7 +143,7 @@ fun LoginComposable(navController: NavController) {
                     onClick = { login() },
                     enabled = !loading
                 ) {
-                    Text("Login")
+                    Text(stringResource(R.string.login))
                 }
             }
             Column(

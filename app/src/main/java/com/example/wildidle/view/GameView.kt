@@ -139,7 +139,7 @@ fun ProducerComposable(producer: Producer, gameValues: GameValues) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (producer.level <= 0) {
-                    Text("Buy")
+                    Text(stringResource(R.string.buy))
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -148,9 +148,9 @@ fun ProducerComposable(producer: Producer, gameValues: GameValues) {
                     }
 
                 } else if (producer.level > 4) {
-                    Text("Max Level")
+                    Text(stringResource(R.string.max_level))
                 } else {
-                    Text("Buy")
+                    Text(stringResource(R.string.upgrade))
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
