@@ -6,16 +6,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Storefront
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -36,31 +40,44 @@ data class BottomNavigationItem(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val screen: Any
+    val screen: Any,
+    val topBarComposable: @Composable () -> Unit
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(mainNavController: NavController) {
     val contentNavController = rememberNavController()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val items = listOf(
         BottomNavigationItem(
             title = stringResource(id = R.string.home),
             selectedIcon = Icons.Filled.Home,
             unselectedIcon = Icons.Outlined.Home,
-            screen = GameScreen
+            screen = GameScreen,
+            topBarComposable = { GameTopBar() }
         ),
         BottomNavigationItem(
             title = stringResource(id = R.string.shop),
             selectedIcon = Icons.Filled.Storefront,
             unselectedIcon = Icons.Outlined.Storefront,
-            screen = ShopScreen
+            screen = ShopScreen,
+            topBarComposable = { ShopTopBar() }
+        ),
+        BottomNavigationItem(
+            title = stringResource(R.string.leaderboard),
+            selectedIcon = Icons.Filled.Leaderboard,
+            unselectedIcon = Icons.Filled.Leaderboard,
+            screen = LeaderboardScreen,
+            topBarComposable = { LeaderBoardTopBar(scrollBehavior) }
         ),
         BottomNavigationItem(
             title = stringResource(R.string.settings),
             selectedIcon = Icons.Filled.Settings,
             unselectedIcon = Icons.Outlined.Settings,
-            screen = SettingsScreen
+            screen = SettingsScreen,
+            topBarComposable = { SettingsTopBar() }
         )
     )
 
@@ -68,7 +85,9 @@ fun MainScreen(mainNavController: NavController) {
         mutableIntStateOf(0)
     }
     Scaffold(
-        modifier = Modifier,
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
             NavigationBar {
                 items.forEachIndexed { index, item ->
@@ -88,6 +107,9 @@ fun MainScreen(mainNavController: NavController) {
                         })
                 }
             }
+        },
+        topBar = {
+            items[selectedItemIndex].topBarComposable()
         }
     ) { innerPadding ->
         Column(
@@ -108,6 +130,9 @@ fun MainScreen(mainNavController: NavController) {
                 composable<SettingsScreen> {
                     SettingsComposable(mainNavController)
                 }
+                composable<LeaderboardScreen> {
+                    LeaderboardComposable()
+                }
             }
 
         }
@@ -122,3 +147,6 @@ object ShopScreen
 
 @Serializable
 object SettingsScreen
+
+@Serializable
+object LeaderboardScreen

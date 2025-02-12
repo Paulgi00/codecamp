@@ -75,6 +75,7 @@ fun SignUpComposable(navController: NavHostController) {
                         if (signUpResponse.isSuccessful) {
                             val loginResponse = authViewModel.login()
                             if (loginResponse.isSuccessful) {
+                                authViewModel.setInitialValues(userNameText)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(MainScreen) {
                                         popUpTo<LoginScreen> {

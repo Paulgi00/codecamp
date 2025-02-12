@@ -48,6 +48,9 @@ fun LoginComposable(navController: NavController) {
         modifier = Modifier.fillMaxSize()
     )
     { innerPadding ->
+
+        // TODO clear database
+
         var userNameText by remember {
             mutableStateOf("")
         }
@@ -78,6 +81,7 @@ fun LoginComposable(navController: NavController) {
                         if (signInResponse.isSuccessful) {
                             val loginResponse = authViewModel.login()
                             if (loginResponse.isSuccessful) {
+                                authViewModel.setInitialValues(userNameText)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(MainScreen) {
                                         popUpTo<LoginScreen> {

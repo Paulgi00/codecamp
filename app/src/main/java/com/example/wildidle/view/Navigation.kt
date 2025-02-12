@@ -1,5 +1,6 @@
 package com.example.wildidle.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wildidle.ui.theme.WildIdleTheme
 import com.example.wildidle.viewmodel.AuthViewModel
+import com.example.wildidle.viewmodel.BackgroundService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -24,7 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WildIdleTheme {
                 val mainNavController = rememberNavController()
-
+                startService(Intent(this, BackgroundService::class.java))
                 val authViewModel = hiltViewModel<AuthViewModel>()
                 val refreshToken = getSharedPreferences("prefs", MODE_PRIVATE)
                     .getString("refresh_token", "")

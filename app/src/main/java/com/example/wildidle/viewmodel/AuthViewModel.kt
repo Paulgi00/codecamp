@@ -3,18 +3,27 @@ package com.example.wildidle.viewmodel
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.wildidle.data.IdleApi
 import com.example.wildidle.model.SignInDTO
 import com.example.wildidle.model.StringResponse
+import com.example.wildidle.room.GameValueDao
+import com.example.wildidle.room.GameValues
+import com.example.wildidle.room.RoomDatabases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Response
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val idleApi: IdleApi,
     private val tokenStorage: TokenStorage,
-    application: Application
+    application: Application,
+    private val gameValueDao: GameValueDao,
+    private val databases: RoomDatabases
 ) : AndroidViewModel(application) {
 
     suspend fun signUp(signInDTO: SignInDTO): Response<StringResponse> {
@@ -61,6 +70,21 @@ class AuthViewModel @Inject constructor(
                 putString("refresh_token", response.headers().values("set-cookie")[0])
                 apply()
             }
+        }
+    }
+
+    fun setInitialValues(userNameText: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            databases.clearAllTables()
+            gameValueDao.updateGameValues(
+                GameValues(
+                    id = 0,
+                    credit = BigDecimal(0),
+                    score = BigDecimal(0),
+                    name = userNameText
+                )
+            )
+
         }
     }
 }

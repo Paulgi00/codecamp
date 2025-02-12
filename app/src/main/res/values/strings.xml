@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WildIdle</string>
+    <string name="app_name">Crypto Clicker</string>
     <string name="username_empty_error">username cannot be empty</string>
     <string name="sign_up">Sign Up</string>
     <string name="password_empty">password cannot be empty</string>
@@ -15,4 +15,13 @@
     <string name="username_taken_error">username is already taken</string>
     <string name="create_user_error">error creating user</string>
     <string name="login">Login</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="score">Score</string>
+    <string name="laptop">Laptop</string>
+    <string name="gpu">Graphics card</string>
+    <string name="quantComp">Quantum PC</string>
+    <string name="def">default</string>
+    <string name="referral_scam">Referral\nScam</string>
+    <string name="ai_trading_bot">Ai Trading\nBot</string>
+    <string name="rugpull_scheme">Rug pull\nScheme</string>
 </resources>

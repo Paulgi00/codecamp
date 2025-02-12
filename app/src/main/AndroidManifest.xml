@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WildIdle"
         tools:targetApi="31">
+        <service android:name=".viewmodel.BackgroundService" />
         <activity
             android:name=".view.MainActivity"
             android:exported="true"
