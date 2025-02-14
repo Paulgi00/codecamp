@@ -34,6 +34,7 @@ class BackgroundService : Service() {
     lateinit var boostDao: BoostDao
 
     private var activeBoosts = mutableSetOf<String>()
+    private var activeBoostTimers = mutableSetOf<Timer>()
 
     private var producerList = mutableStateOf(emptyList<Producer>())
 
@@ -64,6 +65,10 @@ class BackgroundService : Service() {
             }
             launch {
                 boostDao.getAllBoosts().collect { boosts ->
+                    if (boosts.isEmpty()) {
+                        activeBoostTimers.forEach { it.cancel() }
+                        activeBoosts.clear()
+                    }
                     for (boost in boosts) {
                         if (boost.durationLeft > 0 && !activeBoosts.contains(boost.name)) {
                             startBoostTimer(boost)
@@ -98,6 +103,7 @@ class BackgroundService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         serviceJob.cancelChildren()
+        activeBoostTimers.forEach { it.cancel() }
         timer.cancel()
     }
 
@@ -108,6 +114,7 @@ class BackgroundService : Service() {
 
         val boostTimerTask = object : TimerTask() {
             override fun run() {
+                activeBoostTimers.add(boostTimer)
                 scope.launch {
                     if (boost.durationLeft > 0) {
                         boost = boost.copy(
@@ -115,6 +122,7 @@ class BackgroundService : Service() {
                         )
                         boostDao.updateBoost(boost)
                     } else {
+                        activeBoostTimers.remove(boostTimer)
                         boostTimer.cancel()
                         activeBoosts.remove(boost.name)
                         boostDao.updateBoost(
@@ -142,7 +150,7 @@ class BackgroundService : Service() {
                 )
                 boostDao.updateBoost(boost)
             }
-            if (b.isActive) {
+            if (!b.isActive) {
                 launch {
                     producerList.value.forEach {
                         producerDao.updateProducer(

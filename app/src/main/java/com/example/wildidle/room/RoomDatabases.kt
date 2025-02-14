@@ -6,7 +6,8 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [GameValues::class, Producer::class, Boost::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(BigDecimalConverter::class)
 abstract class RoomDatabases : RoomDatabase() {
