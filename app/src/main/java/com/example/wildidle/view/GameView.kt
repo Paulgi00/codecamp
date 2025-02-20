@@ -69,7 +69,7 @@ fun GameComposable() {
             modifier = Modifier
                 .size(160.dp)
                 .clip(CircleShape)
-                .clickable { inGameViewModel.increaseScore(1000) }
+                .clickable { inGameViewModel.increaseScore(1) }
         )
 
         Column {
@@ -93,13 +93,12 @@ fun ProducerComposable(producer: Producer, gameValues: GameValues) {
     val inGameViewModel = hiltViewModel<InGameViewModel>()
     val coroutine = rememberCoroutineScope()
 
-
     val notLoading = !inGameViewModel.isLoading.value && producer.level > 0 && producer.level < 5
     val levelZero = producer.level == 0 && gameValues.credit >= BigDecimal(producer.cost)
-    val levelOneToFour =
+    val enoughCredit =
         notLoading && BigDecimal(inGameViewModel.getUpgrade(producer)!!.cost) <= gameValues.credit
 
-    val buyAble = levelZero || levelOneToFour
+    val buyAble = levelZero || enoughCredit
 
     Row(
         modifier = Modifier,
@@ -193,8 +192,6 @@ fun BoostComposable(boost: Boost) {
                 Text(stringResource(boost.displayName))
                 Text("Factor: ${boost.boostFactor}x")
             }
-
-
         }
 
         LinearProgressIndicator(

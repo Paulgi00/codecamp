@@ -2,6 +2,7 @@ package com.example.wildidle.model
 
 import com.squareup.moshi.Json
 
+// item object from server, which can be passive, boost, upgrade
 data class Item(
     val name: String,
     val cost: Int,

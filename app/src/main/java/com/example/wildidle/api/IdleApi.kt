@@ -1,4 +1,4 @@
-package com.example.wildidle.data
+package com.example.wildidle.api
 
 import com.example.wildidle.model.Item
 import com.example.wildidle.model.LeaderboardResult

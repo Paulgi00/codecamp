@@ -26,10 +26,8 @@ class BackgroundService : Service() {
 
     @Inject
     lateinit var gameValueDao: GameValueDao
-
     @Inject
     lateinit var producerDao: ProducerDao
-
     @Inject
     lateinit var boostDao: BoostDao
 
@@ -44,13 +42,10 @@ class BackgroundService : Service() {
     private val serviceJob = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + serviceJob)
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
             launch {
+                // watch producers and calculate produce rate per second
                 producerDao.getAllProducers().collect { producers ->
                     producerList.value = producers
                     production =
@@ -64,6 +59,7 @@ class BackgroundService : Service() {
                 }
             }
             launch {
+                // watch boosts and activate boost if a new one has been bought
                 boostDao.getAllBoosts().collect { boosts ->
                     if (boosts.isEmpty()) {
                         activeBoostTimers.forEach { it.cancel() }
@@ -80,6 +76,7 @@ class BackgroundService : Service() {
 
         timerTask?.cancel()
 
+        // add production rate to score and credit once a second
         timerTask = object : TimerTask() {
             override fun run() {
                 scope.launch {
@@ -99,14 +96,6 @@ class BackgroundService : Service() {
         timer.schedule(timerTask, 0, 1000)
         return START_STICKY
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceJob.cancelChildren()
-        activeBoostTimers.forEach { it.cancel() }
-        timer.cancel()
-    }
-
 
     private fun startBoostTimer(b: Boost) {
         var boost = b
@@ -141,6 +130,7 @@ class BackgroundService : Service() {
                 }
             }
         }
+        // add boost to list, so it wont be executed twice and update database entry for boost
         activeBoosts.add(boost.name)
         scope.launch {
             launch {
@@ -150,6 +140,7 @@ class BackgroundService : Service() {
                 )
                 boostDao.updateBoost(boost)
             }
+            // if the boost is active, multiply producer values to the boost factor
             if (!b.isActive) {
                 launch {
                     producerList.value.forEach {
@@ -164,5 +155,16 @@ class BackgroundService : Service() {
             }
         }
         boostTimer.schedule(boostTimerTask, 0, 1000)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceJob.cancelChildren()
+        activeBoostTimers.forEach { it.cancel() }
+        timer.cancel()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 }

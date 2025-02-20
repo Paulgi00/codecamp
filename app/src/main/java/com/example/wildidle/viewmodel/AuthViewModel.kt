@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wildidle.data.IdleApi
+import com.example.wildidle.api.IdleApi
 import com.example.wildidle.model.SignInDTO
 import com.example.wildidle.model.StringResponse
 import com.example.wildidle.room.GameValueDao

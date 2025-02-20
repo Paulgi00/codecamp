@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wildidle.R
-import com.example.wildidle.data.IdleApi
+import com.example.wildidle.api.IdleApi
 import com.example.wildidle.model.Item
 import com.example.wildidle.model.Upgrade
 import com.example.wildidle.room.Boost
@@ -135,6 +135,7 @@ class InGameViewModel @Inject constructor(
     }
 
     private fun initializeUpgrades() {
+        // create name and level list to map custom name and picture and level to upgrades
         val nameList = listOf("upgrade lvl 2", "upgrade lvl 3", "upgrade lvl 4", "upgrade lvl 5")
         val levelList = (1..4)
         for (level in levelList) {
@@ -150,6 +151,7 @@ class InGameViewModel @Inject constructor(
     }
 
     fun increaseScore(value: Int) {
+        // increase the score and the credit
         viewModelScope.launch {
             _gameValues.value?.let { currentGameValues ->
                 val updatedGameValues =
@@ -163,6 +165,7 @@ class InGameViewModel @Inject constructor(
     }
 
     suspend fun buyUpgrade(producer: Producer) {
+        // if producer is not bought yet (level 0) buy producer
         if (producer.level <= 0) {
             gameValueDao.updateGameValues(
                 gameValues.value!!.copy(
@@ -175,6 +178,7 @@ class InGameViewModel @Inject constructor(
                     level = 1
                 )
             )
+            // if producer is already bought, get the upgrade for the producer and apply it
         } else if (producer.level <= 4) {
             val upgrade = upgradeMap[producer.level]
             gameValueDao.updateGameValues(
@@ -200,6 +204,7 @@ class InGameViewModel @Inject constructor(
     }
 
     fun buyBoost(boost: Boost) {
+        // update the database entry, everything else is handled by the background service
         if (boost.durationLeft == 0) {
             viewModelScope.launch {
                 gameValues.value?.let {

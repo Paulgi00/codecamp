@@ -2,7 +2,7 @@ package com.example.wildidle.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wildidle.data.IdleApi
+import com.example.wildidle.api.IdleApi
 import com.example.wildidle.model.LeaderboardResult
 import com.example.wildidle.model.ScoreBody
 import com.example.wildidle.model.StringResponse

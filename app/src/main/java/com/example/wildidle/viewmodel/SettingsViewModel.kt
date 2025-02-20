@@ -12,6 +12,7 @@ class SettingsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
+    // set the language using android locales
     fun setLanguage(language: String) {
         val appLocale: LocaleListCompat = if (language == "sd") {
             LocaleListCompat.getEmptyLocaleList()
@@ -20,6 +21,4 @@ class SettingsViewModel @Inject constructor(
         }
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
-
-
 }

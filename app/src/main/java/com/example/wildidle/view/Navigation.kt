@@ -100,5 +100,3 @@ object SignUpScreen
 
 @Serializable
 object MainScreen
-
-

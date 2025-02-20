@@ -2,7 +2,7 @@ package com.example.wildidle.di
 
 import android.app.Application
 import android.content.Context
-import com.example.wildidle.data.IdleApi
+import com.example.wildidle.api.IdleApi
 import com.example.wildidle.viewmodel.TokenStorage
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
@@ -40,10 +40,18 @@ object HttpModule {
 
     object BigDecimalAdapter {
         @FromJson
-        fun fromJson(string: String) = BigDecimal(string)
+        fun fromJson(string: String): BigDecimal {
+            try {
+                return BigDecimal(string)
+            } catch (e: NumberFormatException) {
+                // Log the problematic value
+                println("Error parsing BigDecimal from string: $string")
+                return BigDecimal(0)
+            }
+        }
 
         @ToJson
-        fun toJson(value: BigDecimal) = value.toString()
+        fun toJson(value: BigDecimal): String = value.toString()
     }
 
     @Provides
@@ -71,6 +79,7 @@ object HttpModule {
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val requestBuilder = chain.request().newBuilder()
+            // attach access token and refresh token if available
             val token = tokenStorage.accessToken
             if (token.isNotEmpty()) {
                 requestBuilder
@@ -83,7 +92,9 @@ object HttpModule {
             if (!refreshToken.isNullOrEmpty()) {
                 requestBuilder.addHeader("Cookie", refreshToken)
             }
+
             val initialResponse = chain.proceed(requestBuilder.build())
+            // generate new access token with refresh token if response is 490
             if (initialResponse.code == 490) {
                 initialResponse.close()
                 synchronized(this)
@@ -109,8 +120,5 @@ object HttpModule {
                 return initialResponse
             }
         }
-
     }
-
-
 }
