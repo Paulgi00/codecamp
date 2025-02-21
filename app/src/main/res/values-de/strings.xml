@@ -24,4 +24,5 @@
     <string name="buy">Kaufen</string>
     <string name="upgrade">Verbessern</string>
     <string name="select_language">Sprache Auswählen</string>
+    <string name="factor">Faktor</string>
 </resources>

@@ -60,7 +60,8 @@ fun GameComposable() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -189,13 +190,15 @@ fun BoostComposable(boost: Boost) {
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(stringResource(boost.displayName))
-                Text("Factor: ${boost.boostFactor}x")
+                Text("${boost.durationLeft}s")
+                Text("${stringResource(R.string.factor)}: ${boost.boostFactor}x")
             }
         }
 
         LinearProgressIndicator(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 5.dp),
             progress = { 1f - (boost.durationLeft / boost.duration.toFloat()) }
         )
     }
