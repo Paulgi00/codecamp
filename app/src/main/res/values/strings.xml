@@ -28,4 +28,5 @@
     <string name="max_level" translatable="false">Max Level</string>
     <string name="upgrade">Upgrade</string>
     <string name="select_language">Select Language</string>
+    <string name="factor">Factor</string>
 </resources>
